@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import PropTypes from 'prop-types';
 
@@ -6,44 +6,52 @@ import s from '../Modal/Modal.module.css';
 
 const modalRoot = document.querySelector('#modal-root');
 
-class Modal extends Component {
-  static propTypes = {
-    onClose: PropTypes.func.isRequired,
-  };
+export default function Modal({ largeImageURL, onClose }) {
+  // const componentDidMount() {
+  //   window.addEventListener('keydown', this.handleKeyDown);
+  // }
 
-  componentDidMount() {
-    window.addEventListener('keydown', this.handleKeyDown);
-  }
+  // const componentWillUnmount() {
+  //   window.removeEventListener('keydown', this.handleKeyDown);
+  // }
+  const isFirstRender = useRef(true);
 
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.handleKeyDown);
-  }
+  useEffect(() => {
+    if (isFirstRender.current) {
+      window.addEventListener('keydown', handleKeyDown);
+      isFirstRender.current = false;
+      return;
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  });
 
-  handleKeyDown = e => {
+  const handleKeyDown = e => {
     if (e.code === 'Escape') {
-      this.props.onClose();
+      onClose();
     }
   };
 
-  handleBackdropClick = e => {
+  const handleBackdropClick = e => {
     if (e.currentTarget === e.target) {
-      this.props.onClose();
+      onClose();
     }
   };
 
-  render() {
-    const { largeImageURL } = this.props;
-    return createPortal(
-      <div className={s.Overlay} onClick={this.handleBackdropClick}>
-        <div className={s.Modal}>
-          <img src={largeImageURL} alt="" className={s.ImageGalleryItemImage} />
-        </div>
-      </div>,
-      modalRoot,
-    );
-  }
+  // const { largeImageURL } = this.props;
+  return createPortal(
+    <div className={s.Overlay} onClick={handleBackdropClick}>
+      <div className={s.Modal}>
+        <img src={largeImageURL} alt="" className={s.ImageGalleryItemImage} />
+      </div>
+    </div>,
+    modalRoot,
+  );
 }
 
-export default Modal;
+Modal.propTypes = {
+  onClose: PropTypes.func.isRequired,
+};
 
 /* <img src={src} alt={alt} className={s.ImageGalleryItemImage} />; */
