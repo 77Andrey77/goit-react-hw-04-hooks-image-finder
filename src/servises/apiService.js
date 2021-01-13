@@ -18,6 +18,6 @@ const apiService = (searchName, page) => {
     .get(
       `https://pixabay.com/api/?q=${searchName}&page=${page}&key=19032313-4dd4b1c57c2e902bf9f549139&image_type=photo&orientation=horizontal&per_page=12`,
     )
-    .then(response => response.data.hits);
+    .then(response => response.data);
 };
 export default apiService;

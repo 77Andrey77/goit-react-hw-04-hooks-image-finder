@@ -1,12 +1,16 @@
+import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import { useState, useEffect } from 'react';
-import './App.css';
+
 import Searchbar from '../Searchbar/Searchbar';
-import apiService from '../../servises/apiService';
 import ImageGallery from '../ImageGallery/ImageGallery';
 import Modal from '../Modal/Modal';
-import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import Loader from 'react-loader-spinner';
 import Button from '../Button/Button';
+
+import apiService from '../../servises/apiService';
+
+import './App.css';
+// import { check } from 'prettier';
 
 export default function App() {
   const [searchName, setSearchName] = useState('');
@@ -15,6 +19,8 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [largeImageURL, setLargeImageURL] = useState('');
+  const [arePicturesOver, setArePicturesOver] = useState(false);
+
   // state = {
   //   searchName: '',
   //   images: [],
@@ -32,9 +38,11 @@ export default function App() {
     setLoading(true);
 
     apiService(searchName, page)
-      .then(images => {
-        setImages(state => [...state, ...images]);
+      .then(data => {
+        setImages(prevState => [...prevState, ...data.hits]);
         scrollGalerey();
+
+        totalImages(data.totalHits, data.hits.length);
       })
       // apiService
       //   .fetchImagesWithQuery(searchName, page)
@@ -44,6 +52,18 @@ export default function App() {
       .catch(error => console.log(error))
       .finally(() => setLoading(false));
   }, [searchName, page]);
+
+  function totalImages(total, curr) {
+    if (total > (page - 1) * 12 + curr) {
+      setArePicturesOver(true);
+      // console.log(total);
+      // console.log(page);
+      // console.log(curr);
+      // console.log((page - 1) * 12 + curr);
+    } else {
+      setArePicturesOver(false);
+    }
+  }
 
   /////////////////////// проверяем изменение запроса
   // componentDidUpdate(prevProps, prevState) {
@@ -70,7 +90,6 @@ export default function App() {
     setSearchName(searchName);
     setPage(1);
     setImages([]);
-    setLoading(true);
     // this.setState({ searchName: searchName, page: 1, images: [] });
   };
 
@@ -99,22 +118,20 @@ export default function App() {
 
   ////////////////////////// loade more
   const handleLoadeMore = () => {
-    // fetchImages();-----------------
-    setLoading(true);
     setPage(prevPage => prevPage + 1);
-    scrollGalerey();
   };
 
   ////////////////////////////////
   const onOpenModal = e => {
     setLargeImageURL(e.target.dataset.source);
     // this.setState({ largeImageURL: e.target.dataset.source });
-    toggleModal();
+    setShowModal(true);
   };
 
   ///////////////////////////////change modal
-  const toggleModal = () => {
-    setShowModal(!showModal);
+  const closeModal = () => {
+    setShowModal(false);
+    setLargeImageURL('');
     // this.setState(({ showModal }) => ({
     //   showModal: !showModal,
     // }));
@@ -155,10 +172,10 @@ export default function App() {
         />
       )}
 
-      {!loading && images.length > 11 && <Button onClick={handleLoadeMore} />}
+      {arePicturesOver && <Button onClick={handleLoadeMore} />}
 
       {showModal && (
-        <Modal onClose={toggleModal} largeImageURL={largeImageURL} />
+        <Modal onClose={closeModal} largeImageURL={largeImageURL} />
       )}
     </div>
   );
