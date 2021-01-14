@@ -19,7 +19,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [largeImageURL, setLargeImageURL] = useState('');
-  const [arePicturesOver, setArePicturesOver] = useState(false);
+  const [picturesAre, setPicturesAre] = useState(false);
 
   // state = {
   //   searchName: '',
@@ -55,13 +55,13 @@ export default function App() {
 
   function totalImages(total, curr) {
     if (total > (page - 1) * 12 + curr) {
-      setArePicturesOver(true);
+      setPicturesAre(true);
       // console.log(total);
       // console.log(page);
       // console.log(curr);
       // console.log((page - 1) * 12 + curr);
     } else {
-      setArePicturesOver(false);
+      setPicturesAre(false);
     }
   }
 
@@ -172,7 +172,7 @@ export default function App() {
         />
       )}
 
-      {arePicturesOver && <Button onClick={handleLoadeMore} />}
+      {!loading && picturesAre && <Button onClick={handleLoadeMore} />}
 
       {showModal && (
         <Modal onClose={closeModal} largeImageURL={largeImageURL} />
